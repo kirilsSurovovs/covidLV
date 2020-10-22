@@ -46,7 +46,7 @@ for districtName in populDict.keys():
         if districtName == entryDict['AdministrativiTeritorialasVienibasNosaukums']:
             cases = entryDict['ApstiprinataCOVID19infekcija']
             if 'no 1' in cases:
-                recentCases100kArray[districtName].append(3)
+                recentCases100kArray[districtName].append(1)
             else:
                 recentCases100kArray[districtName].append(int(cases))
             if i>-districtNumber:
@@ -73,18 +73,27 @@ for districtName in populDict.keys():
     recentCases100kDict[districtName] = round(cases14d/populDict[districtName]*1e5)
 
 print(recentCases100kArray)
+dienas = []
+for i in range(8):
+    dienas.append(i-7)
 for districtName in populDict.keys():
+    if len(recentCases100kArray[districtName]) > 8.5:
+        del recentCases100kArray[districtName][-1]
+    elif len(recentCases100kArray[districtName]) < 7.5:
+        recentCases100kArray[districtName].append(recentCases100kArray[districtName][-1])
     dataList = list(recentCases100kArray[districtName])
     dataList.reverse()
-    plt.plot(dataList, label=districtName)
+    plt.plot(dienas, dataList, label=districtName)
 plt.legend(populDict.keys(), loc='upper center')
+plt.xlabel('Dienas (0 = šodien)')
+plt.ylabel('Saslimušo skaits pēdējā nedēļā, uz 100k iedzīvotāju')
 plt.show()
 
 
 date = pyData[-1]['Datums']
 date = date.split('T')[0]
 print(f'Date: {date}\n')
-print('District          		  cases    per 100k')
+print('District          cases in 14 d    per 100k')
 for districtName in populDict.keys():
     dNmod = districtName
     while len(dNmod)<len('Vecpiebalgas novads'):
