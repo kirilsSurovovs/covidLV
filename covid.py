@@ -3,15 +3,19 @@ import json
 import matplotlib.pyplot as plt
 plt.rcParams["figure.figsize"] = (10,5)
 
-DOWNLOAD_RECENT = False
+DOWNLOAD_RECENT = True
 populDict = {
+    # 'Vecpiebalgas novads': 3543,
+    # 'Salaspils novads': 22659,
+    # 'Krāslavas novads': 14155,
+    # 'Dundagas novads': 3641,
     'Olaines novads': 19500,
     'Tukuma novads': 27850,
     'Jelgava': 55972,
     'Ogres novads': 33000,
     'Daugavpils': 110000
 }
-dayNumber = 20 # how many days to plot
+dayNumber = 30 # how many days to plot
 
 if DOWNLOAD_RECENT:
     # var pieveinot rajonus ar garumzīmēm
@@ -97,7 +101,7 @@ for districtName in populDict.keys():
     print(len(dienas), dienas)
     print(len(dataList), dataList)
     plt.plot(dienas, dataList, label=districtName)
-plt.legend(populDict.keys(), loc='upper center')
+plt.legend(populDict.keys(), loc='upper left')
 plt.xlabel('Dienas (0 = šodien)')
 plt.ylabel('Saslimušo skaits pēdējā nedēļā, uz 100k iedzīvotāju')
 plt.show()
