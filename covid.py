@@ -1,26 +1,146 @@
 import urllib.request as ur
 import json
 import matplotlib.pyplot as plt
-plt.rcParams["figure.figsize"] = (10,5)
+plt.rcParams["figure.figsize"] = (10,7)
 
 DOWNLOAD_RECENT = True
-populDict = {
-    # 'Vecpiebalgas novads': 3543,
-    # 'Salaspils novads': 22659,
-    # 'Krāslavas novads': 14155,
-    # 'Dundagas novads': 3641,
-    'Olaines novads': 19500,
-    'Tukuma novads': 27850,
-    'Jelgava': 55972,
-    'Ogres novads': 33000,
-    'Daugavpils': 110000
-}
+# populDict = {
+#     'Olaines novads': 19500,
+#     'Tukuma novads': 27850,
+#     'Jelgava': 55972,
+#     'Ogres novads': 33000,
+#     'Daugavpils': 110000
+# }
 dayNumber = 30 # how many days to plot
+colorTreshold = 100 # only districts with higher incidence are colored
+appearenceTreshold = 35 # only districts with higher incidence are plotted
+plotLimit = 1000
+populDict = {
+'Rīga': 627487,
+'Daugavpils': 82046,
+'Jelgava': 56062,
+'Jēkabpils': 21928,
+'Jūrmala': 49687,
+'Liepāja': 68535,
+'Rēzekne': 27613,
+'Valmiera': 23050,
+'Ventspils': 33906,
+'Aglonas novads': 3099,
+'Aizkraukles novads': 8024,
+'Aizputes novads': 8057,
+'Aknīstes novads': 2520,
+'Alojas novads': 4492,
+'Alsungas novads': 1268,
+'Alūksnes novads': 13895,
+'Amatas novads': 4979,
+'Apes novads': 3220,
+'Auces novads': 6009,
+'Ādažu novads': 11625,
+'Babītes novads': 11131,
+'Baldones novads': 5387,
+'Baltinavas novads': 947,
+'Balvu novads': 11715,
+'Bauskas novads': 22442,
+'Beverīnas novads': 2927,
+'Brocēnu novads': 5633,
+'Burtnieku novads': 7369,
+'Carnikavas novads': 8934,
+'Cesvaines novads': 2266,
+'Cēsu novads': 16291,
+'Ciblas novads': 2355,
+'Dagdas novads': 6549,
+'Daugavpils novads': 19639,
+'Dobeles novads': 19286,
+'Dundagas novads': 3571,
+'Durbes novads': 2601,
+'Engures novads': 7124,
+'Ērgļu novads': 2611,
+'Garkalnes novads': 8923,
+'Grobiņas novads': 8347,
+'Gulbenes novads': 19771,
+'Iecavas novads': 8353,
+'Ikšķiles novads': 9888,
+'Ilūkstes novads': 6412,
+'Inčukalna novads': 7640,
+'Jaunjelgavas novads': 5061,
+'Jaunpiebalgas novads': 1982,
+'Jaunpils novads': 2141,
+'Jelgavas novads': 21738,
+'Jēkabpils novads': 4156,
+'Kandavas novads': 7559,
+'Kārsavas novads': 5193,
+'Kocēnu novads': 5783,
+'Kokneses novads': 4922,
+'Krāslavas novads': 13770,
+'Krimuldas novads': 4807,
+'Krustpils novads': 5453,
+'Kuldīgas novads': 22028,
+'Ķeguma novads': 5281,
+'Ķekavas novads': 24306,
+'Lielvārdes novads': 9597,
+'Limbažu novads': 16507,
+'Līgatnes novads': 3266,
+'Līvānu novads': 10698,
+'Lubānas novads': 2148,
+'Ludzas novads': 11920,
+'Madonas novads': 21879,
+'Mazsalacas novads': 2880,
+'Mālpils novads': 3331,
+'Mārupes novads': 20753,
+'Mērsraga novads': 1407,
+'Naukšēnu novads': 1675,
+'Neretas novads': 3284,
+'Nīcas novads': 3100,
+'Ogres novads': 32987,
+'Olaines novads': 19667,
+'Ozolnieku novads': 10019,
+'Pārgaujas novads': 3576,
+'Pāvilostas novads': 2524,
+'Pļaviņu novads': 4808,
+'Preiļu novads': 9054,
+'Priekules novads': 4997,
+'Priekuļu novads': 7556,
+'Raunas novads': 3019,
+'Rēzeknes novads': 24127,
+'Riebiņu novads': 4513,
+'Rojas novads': 3368,
+'Ropažu novads': 6835,
+'Rucavas novads': 1451,
+'Rugāju novads': 2061,
+'Rundāles novads': 3307,
+'Rūjienas novads': 4824,
+'Salacgrīvas novads': 7152,
+'Salas novads': 3233,
+'Salaspils novads': 22758,
+'Saldus novads': 21587,
+'Saulkrastu novads': 6735,
+'Sējas novads': 2156,
+'Siguldas novads': 17992,
+'Skrīveru novads': 3337,
+'Skrundas novads': 4543,
+'Smiltenes novads': 11985,
+'Stopiņu novads': 11458,
+'Strenču novads': 2838,
+'Talsu novads': 27425,
+'Tērvetes novads': 3302,
+'Tukuma novads': 27613,
+'Vaiņodes novads': 2235,
+'Valkas novads': 7603,
+'Varakļānu novads': 2990,
+'Vārkavas novads': 1793,
+'Vecpiebalgas novads': 3555,
+'Vecumnieku novads': 7665,
+'Ventspils novads': 10824,
+'Viesītes novads': 3500,
+'Viļakas novads': 4472,
+'Viļānu novads': 5417,
+'Zilupes novads': 2575,
+}
 
 if DOWNLOAD_RECENT:
     # var pieveinot rajonus ar garumzīmēm
-    populDict['Rīga'] = 632600
-    populDict['Kuldīgas novads'] = 22300
+    # populDict['Rīga'] = 632600
+    # populDict['Kuldīgas novads'] = 22300
 
     urlSPKC = 'https://data.gov.lv/dati/lv/api/3/action/datastore_search?resource_id=492931dd-0012-46d7-b415-76fe0ec7c216&limit=50000'
     fileobj = ur.urlopen(url=urlSPKC)
@@ -100,11 +220,19 @@ for districtName in populDict.keys():
     dataList.reverse()
     print(len(dienas), dienas)
     print(len(dataList), dataList)
-    plt.plot(dienas, dataList, label=districtName)
-plt.legend(populDict.keys(), loc='upper left')
+    if dataList[-1] > colorTreshold-0.1:
+        plt.plot(dienas, dataList, label=districtName)
+    elif dataList[-1] > appearenceTreshold:
+        plt.plot(dienas, dataList, label='', color='grey', alpha=0.2)
+
+plt.legend(loc='upper left')
 plt.xlabel('Dienas (0 = šodien)')
 plt.ylabel('Saslimušo skaits pēdējā nedēļā, uz 100k iedzīvotāju')
+axis = plt.gca()
+axis.set_ylim([0, plotLimit])
+# plt.yscale('log')
 plt.show()
+plt.savefig('covid.png')
 
 
 date = pyData[-1]['Datums']
