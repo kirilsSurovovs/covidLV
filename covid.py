@@ -5,9 +5,9 @@ plt.rcParams["figure.figsize"] = (10,7)
 
 DOWNLOAD_RECENT = True
 dayNumber = 30 # how many days to plot
-colorTreshold = 100 # only districts with higher incidence are colored
-rateTreshold  = 0.2 # only districts with higher incidence growth during last week are colored
-appearenceTreshold = 1 # only districts with higher incidence are plotted
+colorTreshold = 130 # only districts with higher incidence are colored
+rateTreshold  = -1.00 # only districts with higher incidence growth during last week are colored
+appearenceTreshold = 5 # only districts with higher incidence are plotted
 plotLimit = 700
 # populDict = {
 #     'Olaines novads': 19500,
@@ -211,6 +211,7 @@ for districtName in populDict.keys():
 
 # print(recentCases100kArray)
 dienas = []
+districtNumber = 0
 for i in range(dayNumber+1):
     dienas.append(i-dayNumber)
 for districtName in populDict.keys():
@@ -227,7 +228,11 @@ for districtName in populDict.keys():
     if districtName == 'Rīga':
         plt.plot(dienas, dataList, label=districtName, linewidth=3, color='black')
     elif (dataList[-1] > dataList[-7]*(1 + rateTreshold)) and (dataList[-1] > colorTreshold):
-        plt.plot(dienas, dataList, label=districtName)
+        if districtNumber<10:
+            plt.plot(dienas, dataList, label=districtName)
+        else:
+            plt.plot(dienas, dataList, linestyle='dashed', label=districtName)
+        districtNumber += 1
     elif dataList[-1] > appearenceTreshold:
         plt.plot(dienas, dataList, label='', color='grey', alpha=0.2)
 
