@@ -2,7 +2,13 @@ import urllib.request as ur
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import numpy as np
+myFmt = mdates.DateFormatter('%d')
 plt.rcParams["figure.figsize"] = (10,7)
+fig, ax = plt.subplots()
+fig.autofmt_xdate()
+# ax.xaxis.set_major_formatter(myFmt)
 
 DOWNLOAD_RECENT = True
 dayNumber = 15 # how many days to plot
@@ -22,11 +28,11 @@ plotLimit = 700
 # }
 populDict = {
 'Rīga': 627487,
-'Daugavpils': 82046,
-'Jelgava': 56062,
-'Jēkabpils': 21928,
-'Jūrmala': 49687,
-'Liepāja': 68535,
+'Daugavpils pilsēta': 82046,
+'Jelgavas pilsēta': 56062,
+'Jēkabpils pilsēta': 21928,
+'Jūrmalas pilsēta': 49687,
+'Liepājas pilsēta': 68535,
 'Rēzekne': 27613,
 'Valmiera': 23050,
 'Ventspils': 33906,
@@ -143,7 +149,8 @@ populDict = {
 }
 
 if DOWNLOAD_RECENT:
-    urlSPKC = 'https://data.gov.lv/dati/lv/api/3/action/datastore_search?resource_id=492931dd-0012-46d7-b415-76fe0ec7c216&limit=100000'
+    # urlSPKC = 'https://data.gov.lv/dati/lv/api/3/action/datastore_search?resource_id=ba1fe21e-6308-491d-a4a0-27609122b441&limit=5000000&q=title:jones'
+    urlSPKC = 'https://data.gov.lv/dati/lv/api/3/action/datastore_search?resource_id=ba1fe21e-6308-491d-a4a0-27609122b441&limit=500000'
     fileobj = ur.urlopen(url=urlSPKC)
     alldataNet = fileobj.read()
 
@@ -160,6 +167,8 @@ else:
     fIn.close
 
 df = pd.read_json(alldataNet)
+# print(df)
+# print(df.info())
 df = pd.DataFrame( df["result"]["records"] )
 df = df[["Datums", "14DienuKumulativaSaslimstiba", "AdministrativiTeritorialasVienibasNosaukums"]]
 df = df[ df["14DienuKumulativaSaslimstiba"] != "no 1 līdz 5" ]
@@ -171,18 +180,39 @@ df.to_excel("covid.xlsx")
 # print(df.info())
 
 
-for distr in populDict.keys():
+# for distr in populDict.keys():
+#     df2 = df[ df["AdministrativiTeritorialasVienibasNosaukums"] == distr ]
+#     dienas = df2["Datums"]
+#     kumSaslim = df2["14DienuKumulativaSaslimstiba"]/populDict[distr]*1e5
+#     dienas = dienas[-dayNumber:-1]
+#     dienas = np.array(dienas)
+#     for i in range(len(dienas)):
+#         my_str = dienas[i]
+#         dienas[i] = my_str.split('T')[0]
+#     # print(dienas)
+#     kumSaslim = kumSaslim[-dayNumber:-1]
+#     # plt.plot(df2["Datums"], df2["14DienuKumulativaSaslimstiba"]/populDict[distr]*1e5, label='', color='grey', alpha=0.2)
+#     plt.plot(dienas, kumSaslim, label='', color='grey', alpha=0.2)
+for distr in ['Rīga', 'Tukuma novads', 'Olaines novads', 'Daugavpils pilsēta', 'Jelgavas pilsēta', 'Jēkabpils pilsēta', 'Jūrmalas pilsēta', 'Liepājas pilsēta']:
     df2 = df[ df["AdministrativiTeritorialasVienibasNosaukums"] == distr ]
-    plt.plot(df2["14DienuKumulativaSaslimstiba"]/populDict[distr]*1e5, label='', color='grey', alpha=0.2)
-for distr in ['Rīga', 'Daugavpils', 'Jelgava', 'Tukuma novads', 'Olaines novads']:
-    df2 = df[ df["AdministrativiTeritorialasVienibasNosaukums"] == distr ]
-    plt.plot(df2["14DienuKumulativaSaslimstiba"]/populDict[distr]*1e5, label=distr)
+    dienas = df2["Datums"]
+    kumSaslim = df2["14DienuKumulativaSaslimstiba"]/populDict[distr]*1e5
+    dienas = dienas[-dayNumber:-1]
+    dienas = np.array(dienas)
+    for i in range(len(dienas)):
+        my_str = dienas[i]
+        dienas[i] = my_str.split('T')[0]
+    # print(dienas)
+    kumSaslim = kumSaslim[-dayNumber:-1]
+    # plt.plot(df2["Datums"], df2["14DienuKumulativaSaslimstiba"]/populDict[distr]*1e5, label=distr)
+    plt.plot(dienas, kumSaslim, label=distr)
 plt.legend(loc='upper left')
 plt.xlabel('Dienas')
 plt.ylabel('Saslimušo skaits pēdējās 2 nedēļās, uz 100k iedzīvotāju')
 axis = plt.gca()
-axis.set_ylim(bottom=0)
+# axis.set_ylim(bottom=0, top=1000)
 # plt.yscale('log')
+plt.grid()
 plt.savefig('covid.png')
 plt.show()
 
